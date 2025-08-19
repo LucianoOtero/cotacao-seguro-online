@@ -2,10 +2,14 @@ export { Header } from "./Header";
 export { Footer } from "./Footer";
 export { Hero } from "./Hero";
 export { LeadForm } from "./LeadForm";
-export { GoogleRating } from "./GoogleRating";
+export { FraudAlert } from "./FraudAlert";
+export { GoogleReviews } from "./GoogleReviews";
+export { FacebookReviews } from "./FacebookReviews";
+export { InsuranceMenu } from "./InsuranceMenu";
+export { WhyChooseUs } from "./WhyChooseUs";
+export { PriceQualityService } from "./PriceQualityService";
+export { Partners } from "./Partners";
+export { Coverages } from "./Coverages";
+export { Team } from "./Team";
 export { CollectChat } from "./CollectChat";
 export { CTA } from "./CTA";
-export { WhatsAppButton } from "./WhatsAppButton";
-export { FacebookReviewsBadge } from "./FacebookReviewsBadge";
-
-

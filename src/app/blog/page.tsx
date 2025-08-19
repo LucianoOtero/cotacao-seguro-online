@@ -3,9 +3,10 @@ import { getAllPosts } from "@/lib/blog";
 
 const PAGE_SIZE = 12;
 
-export default async function Page({ searchParams }: { searchParams?: Record<string, string | string[]> }) {
-  const page = Number((searchParams?.page as string) || "1");
-  const q = ((searchParams?.q as string) || "").toLowerCase();
+export default async function Page({ searchParams }: { searchParams?: Promise<Record<string, string | string[]>> }) {
+  const sp = (await searchParams) || {};
+  const page = Number((sp.page as string) || "1");
+  const q = ((sp.q as string) || "").toLowerCase();
   const all = await getAllPosts();
   const filtered = q
     ? all.filter((p) => `${p.title} ${p.richTextHtml || ""}`.toLowerCase().includes(q))

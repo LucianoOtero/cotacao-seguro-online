@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "postbuild-verify": "node scripts/postbuild-verify.mjs"
+    "postbuild-verify": "node scripts/postbuild-verify.mjs",
+    "pre-deploy": "node scripts/pre-deploy-check.js",
+    "check": "node check-build.js"
   },
   "dependencies": {
     "react": "19.1.0",

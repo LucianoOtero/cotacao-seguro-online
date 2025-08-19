@@ -114,23 +114,44 @@ export async function POST(request: Request) {
 
     const espoEndpoint = `${ESPO_URL.replace(/\/$/, "")}/api/v1/${ESPO_ENTITY}`;
 
-    // Map to EspoCRM Lead fields (adjust keys to your Espo schema)
-    const espoLead = {
-      firstName: body.firstName,
-      lastName: body.lastName,
-      phoneNumber: body.phoneNumber,
-      emailAddress: body.emailAddress,
-      description: body.message,
-      product: body.product,
-      source: payload.source,
-      utm_source: payload.utm_source,
-      utm_medium: payload.utm_medium,
-      utm_campaign: payload.utm_campaign,
-      utm_term: payload.utm_term,
-      utm_content: payload.utm_content,
-      gclid: payload.gclid,
-      fbclid: payload.fbclid,
-    };
+    // Map payload depending on the target entity in EspoCRM
+    const fullName = `${body.firstName ?? ""} ${body.lastName ?? ""}`.trim();
+    const isOpportunity = ESPO_ENTITY.toLowerCase() === "opportunity";
+
+    const espoPayload = isOpportunity
+      ? {
+          // Default Opportunity fields
+          name: fullName ? `${fullName}${body.product ? ` — ${body.product}` : ""}` : body.product || "Oportunidade",
+          description: body.message,
+          // Custom/contact fields (ensure these exist in your Espo schema)
+          phoneNumber: body.phoneNumber,
+          emailAddress: body.emailAddress,
+          leadSource: payload.source,
+          utm_source: payload.utm_source,
+          utm_medium: payload.utm_medium,
+          utm_campaign: payload.utm_campaign,
+          utm_term: payload.utm_term,
+          utm_content: payload.utm_content,
+          gclid: payload.gclid,
+          fbclid: payload.fbclid,
+        }
+      : {
+          // Default Lead fields
+          firstName: body.firstName,
+          lastName: body.lastName,
+          phoneNumber: body.phoneNumber,
+          emailAddress: body.emailAddress,
+          description: body.message,
+          product: body.product,
+          source: payload.source,
+          utm_source: payload.utm_source,
+          utm_medium: payload.utm_medium,
+          utm_campaign: payload.utm_campaign,
+          utm_term: payload.utm_term,
+          utm_content: payload.utm_content,
+          gclid: payload.gclid,
+          fbclid: payload.fbclid,
+        };
 
     const espoRes = await fetch(espoEndpoint, {
       method: "POST",
@@ -138,7 +159,7 @@ export async function POST(request: Request) {
         "Content-Type": "application/json",
         "X-Api-Key": ESPO_API_KEY,
       },
-      body: JSON.stringify(espoLead),
+      body: JSON.stringify(espoPayload),
       // Avoid hanging on network issues
       cache: "no-store",
     });

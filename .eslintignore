@@ -1,0 +1,7 @@
+# Arquivos JavaScript do Webflow (não seguem padrões ESLint)
+src/webflow-export/**/*.js
+public/webflow/**/*.js
+
+# Outros arquivos que podem ser ignorados
+*.min.js
+*.bundle.js

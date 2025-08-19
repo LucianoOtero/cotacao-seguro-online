@@ -1,25 +1,36 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import DOMPurify from "isomorphic-dompurify";
+function basicSanitize(html: string): string {
+  // Minimal sanitize: strips script tags and on* attributes
+  return html
+    .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, "")
+    .replace(/ on[a-z]+="[^"]*"/gi, "")
+    .replace(/ on[a-z]+='[^']*'/gi, "");
+}
 import { getAllPosts, getPostBySlug } from "@/lib/blog";
 
-type Params = { params: { slug: string } };
+type SlugParams = { slug: string };
+
+// Only allow statically generated slugs; unknown slugs should 404 at build time
+export const dynamicParams = false;
 
 export async function generateStaticParams() {
   const posts = await getAllPosts();
   return posts.map((p) => ({ slug: p.slug }));
 }
 
-export async function generateMetadata({ params }: Params): Promise<Metadata> {
-  const post = await getPostBySlug(params.slug);
+export async function generateMetadata({ params }: { params: Promise<SlugParams> }): Promise<Metadata> {
+  const { slug } = await params;
+  const post = await getPostBySlug(slug);
   return {
     title: post?.title || "Post",
     description: post?.richTextHtml ? `${post.title} — publicação` : undefined,
   };
 }
 
-export default async function Page({ params }: Params) {
-  const post = await getPostBySlug(params.slug);
+export default async function Page({ params }: { params: Promise<SlugParams> }) {
+  const { slug } = await params;
+  const post = await getPostBySlug(slug);
   if (!post) {
     return (
       <main className="mx-auto max-w-3xl px-4 py-10">
@@ -28,7 +39,7 @@ export default async function Page({ params }: Params) {
       </main>
     );
   }
-  const safeHtml = post.richTextHtml ? DOMPurify.sanitize(post.richTextHtml) : "";
+  const safeHtml = post.richTextHtml ? basicSanitize(post.richTextHtml) : "";
   return (
     <main className="mx-auto max-w-3xl px-4 py-10">
       <h1 className="text-2xl font-bold">{post.title}</h1>

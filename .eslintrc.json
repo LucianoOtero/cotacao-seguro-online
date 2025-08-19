@@ -1,0 +1,13 @@
+{
+  "extends": ["next/core-web-vitals"],
+  "ignorePatterns": [
+    "src/webflow-export/**/*.js",
+    "public/webflow/**/*.js",
+    "public/js/**/*.js",
+    "**/*.min.js",
+    "**/*.bundle.js",
+    ".next/**",
+    "out/**",
+    "dist/**"
+  ]
+}

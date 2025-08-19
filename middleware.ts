@@ -1,52 +1,83 @@
-import { NextResponse, NextRequest } from "next/server";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
-/**
- * Marketing attribution middleware
- *
- * Captures the following query params and stores them as cookies (90 days, SameSite=Lax):
- * - utm_source
- * - utm_medium
- * - utm_campaign
- * - utm_term
- * - utm_content
- * - gclid
- * - fbclid
- *
- * Cookies are non-HTTPOnly so the client can read them for form prefill.
- * Navigation is not blocked; the request proceeds normally.
- */
 export function middleware(request: NextRequest) {
-  const url = new URL(request.url);
   const response = NextResponse.next();
 
-  const paramNames = [
-    "utm_source",
-    "utm_medium",
-    "utm_campaign",
-    "utm_term",
-    "utm_content",
-    "gclid",
-    "fbclid",
+  // Lista de parâmetros de marketing que queremos capturar
+  const marketingParams = [
+    'utm_source',
+    'utm_medium', 
+    'utm_campaign',
+    'utm_term',
+    'utm_content',
+    'gclid',
+    'fbclid',
+    'msclkid', // Microsoft Ads
+    'ttclid',  // TikTok
   ];
 
-  for (const name of paramNames) {
-    const value = url.searchParams.get(name);
-    if (value) {
-      response.cookies.set(name, value, {
-        httpOnly: false,
-        sameSite: "lax",
-        secure: process.env.NODE_ENV === "production",
-        maxAge: 60 * 60 * 24 * 90, // 90 days
-        path: "/",
-      });
+  // Verifica se há parâmetros de marketing na URL
+  const url = request.nextUrl;
+  const hasMarketingParams = marketingParams.some(param => url.searchParams.has(param));
+
+  if (hasMarketingParams) {
+    // Configurações do cookie
+    const cookieOptions = {
+      maxAge: 60 * 60 * 24 * 90, // 90 dias em segundos
+      httpOnly: false, // Permitir acesso via JavaScript no cliente
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax' as const,
+      path: '/',
+    };
+
+    // Captura e armazena cada parâmetro em um cookie separado
+    marketingParams.forEach(param => {
+      const value = url.searchParams.get(param);
+      if (value) {
+        response.cookies.set(`marketing_${param}`, value, cookieOptions);
+      }
+    });
+
+    // Armazena timestamp da primeira visita
+    if (!request.cookies.get('marketing_first_visit')) {
+      response.cookies.set('marketing_first_visit', new Date().toISOString(), cookieOptions);
+    }
+
+    // Armazena a página de entrada (landing page)
+    if (!request.cookies.get('marketing_landing_page')) {
+      response.cookies.set('marketing_landing_page', url.pathname + url.search, cookieOptions);
+    }
+
+    // Armazena o referer se disponível
+    const referer = request.headers.get('referer');
+    if (referer && !request.cookies.get('marketing_referer')) {
+      response.cookies.set('marketing_referer', referer, cookieOptions);
     }
   }
+
+  // Armazena a última visita
+  response.cookies.set('marketing_last_visit', new Date().toISOString(), {
+    maxAge: 60 * 60 * 24 * 90, // 90 dias
+    httpOnly: false,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax' as const,
+    path: '/',
+  });
 
   return response;
 }
 
+// Configurar em quais rotas o middleware deve executar
 export const config = {
-  matcher: "/:path*",
+  matcher: [
+    /*
+     * Aplicar em todas as rotas exceto:
+     * - api routes (que começam com /api/)
+     * - arquivos estáticos (_next/static)
+     * - arquivos de imagem, favicon, etc.
+     * - sitemap.xml, robots.txt
+     */
+    '/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|images|fonts|js|css).*)',
+  ],
 };
-
-
