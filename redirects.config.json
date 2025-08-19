@@ -1,0 +1,17 @@
+[
+  { "source": "/index.html", "destination": "/", "permanent": true },
+  { "source": "/seguro-auto.html", "destination": "/seguro-auto", "permanent": true },
+  { "source": "/seguro-motos.html", "destination": "/seguro-motos", "permanent": true },
+  { "source": "/seguro-uber.html", "destination": "/seguro-uber", "permanent": true },
+  { "source": "/seguro-taxi.html", "destination": "/seguro-taxi", "permanent": true },
+  { "source": "/seguro-utilitario.html", "destination": "/seguro-utilitario", "permanent": true },
+  { "source": "/seguro-caminhao.html", "destination": "/seguro-caminhao", "permanent": true },
+  { "source": "/seguro-de-vida.html", "destination": "/seguro-de-vida", "permanent": true },
+  { "source": "/reputacao.html", "destination": "/reputacao", "permanent": true },
+  { "source": "/politicas-de-privacidade.html", "destination": "/politicas-de-privacidade", "permanent": true },
+  { "source": "/assistencia-24-horas.html", "destination": "/seguro-auto", "permanent": true },
+  { "source": "/cadastro.html", "destination": "/", "permanent": true },
+  { "source": "/sucesso.html", "destination": "/", "permanent": true }
+]
+
+
